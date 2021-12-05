@@ -19,8 +19,6 @@ namespace DigitalOmega.api.Controllers
             this.providerService = _providerService;
             this.configuration = configuration;
         }
-
-
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
