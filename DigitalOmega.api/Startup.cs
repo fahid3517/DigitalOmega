@@ -25,6 +25,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using DigitalOmega.api.DTOs;
+
 namespace DigitalOmega.api
 {
     public class Startup
@@ -50,9 +52,10 @@ namespace DigitalOmega.api
            // services.AddDbContext<BlogDBContext>(item => item.UseSqlServer(Configuration.GetConnectionString("BlogDBConnection")));
 
             services.AddDbContext<D_OContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<do_insightContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             // services.AddIdentity<DigitalOmega.api.Models.D_OContext, D_OContext>();
             // services.AddIdentity <ApplicationIdentity,IdentityRole>
-           
+
             services.AddApiVersioning(o =>
             {
                 o.ReportApiVersions = true;

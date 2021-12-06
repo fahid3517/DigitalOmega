@@ -1,7 +1,7 @@
 ﻿using DigitalOmega.api.Common;
 using DigitalOmega.api.DataViewModels.Common;
 using DigitalOmega.api.DataViewModels.Enum;
-using DigitalOmega.api.Models;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.ModelsData;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
@@ -100,9 +100,9 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(typeof(Response<bool>), 200)]
         [ProducesResponseType(typeof(Response<bool>), 403)]
         [ProducesResponseType(typeof(string[]), 400)]
-        [AdminAuthorize(ERight.SuperAdmin)]
-        [Route("AddPost")]
-        public async Task<IActionResult> AddPost(CreateAgentsRequest request)
+       // [AdminAuthorize(ERight.SuperAdmin)]
+        [Route("SaveAgent")]
+        public async Task<IActionResult> SaveAgent(CreateAgentsRequest request)
         {
  
 
@@ -113,9 +113,10 @@ namespace DigitalOmega.api.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, ModelState.Values.SelectMany(v => v.Errors.Select(z => z.ErrorMessage)));
                 }
-                var userId = Guid.Parse(RouteData.Values["userId"].ToString());
+                var agentGId = Guid.NewGuid();
+               // var userId = Guid.Parse(RouteData.Values["userId"].ToString());
 
-                return StatusCode(StatusCodes.Status200OK, new Response<bool>() { IsError = false, Message = "", Data = await agentService.AddAgent(request, userId) });
+                return StatusCode(StatusCodes.Status200OK, new Response<bool>() { IsError = false, Message = "", Data = await agentService.AddAgent(request, agentGId) });
             }
             catch (Exception ex)
             {
@@ -128,8 +129,8 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(500)]
-        [Route("DeletePost")]
-        public async Task<IActionResult> DeletePost(int? postId)
+        [Route("DeleteAgent")]
+        public async Task<IActionResult> DeleteAgent(int? postId)
         {
             int result = 0;
 
@@ -160,8 +161,8 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(500)]
-        [Route("UpdatePost")]
-        public async Task<IActionResult> UpdatePost([FromBody] Agent model)
+        [Route("UpdateAgent")]
+        public async Task<IActionResult> UpdateAgen([FromBody] Agent model)
         {
             if (ModelState.IsValid)
             {

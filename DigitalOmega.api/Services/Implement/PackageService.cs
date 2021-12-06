@@ -1,5 +1,5 @@
 ﻿using DigitalOmega.api.Common;
-using DigitalOmega.api.Models;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.Packages;
@@ -19,7 +19,7 @@ namespace DigitalOmega.api.Services.Implement
                 if (request.Id == null)
                 {
                     // createnew
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -28,8 +28,8 @@ namespace DigitalOmega.api.Services.Implement
                                 await db.Packages.AddAsync(new Package
                                 {
 
-                                    Id = SystemGlobal.GetId(),
-                                    PackageName = request.PackageName,
+                                    GId = SystemGlobal.GetId(),
+                                    Name = request.Name,
                                     Abbreviation = request.Abbreviation,
                                     Psus = request.PSUs
                                 });
@@ -48,7 +48,7 @@ namespace DigitalOmega.api.Services.Implement
                 }
                 else
                 {
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -58,7 +58,7 @@ namespace DigitalOmega.api.Services.Implement
 
                                 if (package == null) throw new Exception("Package Not Found");
 
-                                package.PackageName = request.PackageName;
+                                package.Name = request.Name;
                                 package.Abbreviation = request.Abbreviation;
                                 package.Psus = request.PSUs;
                                 await db.SaveChangesAsync();
@@ -88,12 +88,13 @@ namespace DigitalOmega.api.Services.Implement
             try
             {
                 GetPackgesResponse response = new GetPackgesResponse();
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
                     var query = db.Packages.Select(s => new CreatePackagesRequest
                     {
-                        Id = s.Id,
-                        PackageName = s.PackageName,
+                        Id =s.Id,
+                        GId = s.GId,
+                        Name = s.Name,
                         Abbreviation = s.Abbreviation,
                         PSUs = s.Psus
                     }).AsQueryable();
@@ -106,14 +107,14 @@ namespace DigitalOmega.api.Services.Implement
                         var isNumber = Int32.TryParse(page.Search, out totalCases);
 
                         query = query.Where(
-                        x => x.PackageName.ToLower().Contains(page.Search.ToLower())
+                        x => x.Name.ToLower().Contains(page.Search.ToLower())
                     );
                     }
-                    var orderedQuery = query.OrderByDescending(x => x.PackageName);
+                    var orderedQuery = query.OrderByDescending(x => x.Name);
                     switch (page.SortIndex)
                     {
                         case 0:
-                            orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.PackageName) : query.OrderBy(x => x.PackageName);
+                            orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
                             break;
                         case 1:
                             orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Abbreviation) : query.OrderBy(x => x.Abbreviation);

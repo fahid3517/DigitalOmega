@@ -104,7 +104,7 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(typeof(Response<bool>), 200)]
         [ProducesResponseType(typeof(Response<bool>), 403)]
         [ProducesResponseType(typeof(string[]), 400)]
-        [AdminAuthorize(ERight.UserManagement)]
+       // [AdminAuthorize(ERight.UserManagement)]
         [Route("saveuser")]
         public async Task<IActionResult> SaveUser([FromForm] CreateUserRequest createUser)
         {

@@ -6,11 +6,11 @@ namespace DigitalOmega.api.Request
     public class CreatePackagesRequest
     {
         [JsonProperty(PropertyName = "id")]
-        public Guid? Id { get; set; }
+        public int? Id { get; set; }
 
         [Required]
-        [JsonProperty(PropertyName = "packagename")]
-        public string? PackageName { get; set; }
+        [JsonProperty(PropertyName = "name")]
+        public string? Name { get; set; }
 
         [Required]
         [JsonProperty(PropertyName = "abbreviation")]
@@ -18,7 +18,10 @@ namespace DigitalOmega.api.Request
 
         [Required]
         [JsonProperty(PropertyName = "PSUs")]
-        public string? PSUs { get; set; }
+        public int? PSUs { get; set; }
+
+        [JsonProperty(PropertyName = "gid")]
+        public Guid? GId { get; set; }
 
     }
 }

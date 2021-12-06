@@ -1,4 +1,4 @@
-﻿using DigitalOmega.api.Models;
+﻿using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.Packages;

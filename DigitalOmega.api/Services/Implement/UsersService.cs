@@ -1,5 +1,6 @@
 ﻿using DigitalOmega.api.Common;
 using DigitalOmega.api.DataViewModels.Common;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Models;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
@@ -28,16 +29,16 @@ namespace DigitalOmega.api.Services.Implement
                 bool isLogin = false,
                     isBlock = false;
 
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
                     var user = db.Users
-                        .FirstOrDefault(x => x.Email.ToLower().Equals(request.UserInfo.ToLower()) && x.Password.Equals(encryptedPassword));
+                        .FirstOrDefault(x => x.UserId.ToLower().Equals(request.UserInfo.ToLower()) && x.Password.Equals(encryptedPassword));
 
                     if (user == null) return Tuple.Create(response, isLogin, isBlock);
                    // isBlock = user.IsBlocked;
                     if (isBlock) return Tuple.Create(response, isLogin, isBlock);
 
-                    var authToken = new Encryption().GetToken(new AdminAuthToken { UserId = user.Id }, user.Id, tokenKey);
+                    var authToken = new Encryption().GetToken(new AdminAuthToken { UserId = user.GId }, user.GId, tokenKey);
 
                     response = new LoginResponse
                     {
@@ -57,7 +58,7 @@ namespace DigitalOmega.api.Services.Implement
         {
             try
             {
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
                     return db.Users
                         .Where(x => x.Id.Equals(userId))
@@ -66,8 +67,14 @@ namespace DigitalOmega.api.Services.Implement
                             Id = x.Id,
                             Name = x.Name,
                           
-                            Email = x.Email,
+                            UserId = x.UserId,
                             Password = "***********",
+                            Role = x.Role,
+                            CreatedAt = DateTime.Now,  
+                            CreatedBy= x.CreatedBy,
+                            DeactivatedAt = DateTime.Now,
+                            DeactivatedBy= x.DeactivatedBy,
+                             Active = x.Active,
                             // GenderId = x.GenderId,
                             // GenderName = x.Gender.Name,
                            // RoleId = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).RoleId,
@@ -93,19 +100,26 @@ namespace DigitalOmega.api.Services.Implement
             {
                 GetUsersResponse response = new GetUsersResponse();
 
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
-                    var query = db.Users.Where(x => x.IsEnable)
+                    var query = db.Users
                         .Select(x => new CreateUserRequest
                         {
                             Id = x.Id,
                             Name = x.Name,
-                            Email = x.Email,
+
+                            UserId = x.UserId,
                             Password = "***********",
+                            Role = x.Role,
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = x.CreatedBy,
+                            DeactivatedAt = DateTime.Now,
+                            DeactivatedBy = x.DeactivatedBy,
+                            GId = x.GId,
                             // GenderId = x.GenderId,
                             // GenderName = x.Gender.Name,
-                           // RoleId = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).RoleId,
-                           // RoleName = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).Role.Name,
+                            // RoleId = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).RoleId,
+                            // RoleName = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).Role.Name,
                             //ProfileImage = new FileUrlResponce
                             //{
                             //    URL = x.ImageUrl,
@@ -176,25 +190,31 @@ namespace DigitalOmega.api.Services.Implement
                 {
                     var encryptedPassword = new Encryption().Encrypt(createUser.Password, configuration.GetValue<string>("EncryptionKey"));
 
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
-                        if (db.Users.Any(x => x.Email.ToLower().Equals(createUser.Email.ToLower()))) throw new Exception("Email Already Exists");
+                        if (db.Users.Any(x => x.UserId.ToLower().Equals(createUser.UserId.ToLower()))) throw new Exception("Email Already Exists");
 
                         using (var trans = db.Database.BeginTransaction())
                         {
                             try
                             {
-                                await db.Users.AddAsync(new User
+                                await db.Users.AddAsync(new DTOs.User
                                 {
-                                    Id = SystemGlobal.GetId(),
+                                    GId = SystemGlobal.GetId(),
                                     Name = createUser.Name,
-                                    Email = createUser.Email,
+                                    UserId = createUser.UserId,
                                     Password = encryptedPassword,
+                                    Role = createUser.Role,
+                                    Active =    createUser.Active,
+                                    CreatedBy = createUser.CreatedBy,
+                                    CreatedAt =DateTime.Now,
+                                    DeactivatedAt = DateTime.Now,
+                                    DeactivatedBy = userId.ToString(),
+                                   
                                     //GenderId = createUser.GenderId,
                                   
                                     //AdminUserRoles = userRoles,
                                 
-                                    IsEnable = true,
                                  
                                 });
 
@@ -214,7 +234,7 @@ namespace DigitalOmega.api.Services.Implement
                 }
                 else
                 {
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -229,8 +249,8 @@ namespace DigitalOmega.api.Services.Implement
                                 await db.SaveChangesAsync();
 
                                 user.Name = createUser.Name;
-                                user.Email = createUser.Email;
-                                //user.UpdatedBy = userId.ToString();
+                                user.UserId = createUser.UserId;
+                                user.CreatedBy = userId.ToString();
                                 //user.UpdatedOn = DateTime.UtcNow;
 
                                 db.Entry(user).State = EntityState.Modified;

@@ -1,5 +1,5 @@
 ﻿using DigitalOmega.api.Common;
-using DigitalOmega.api.Models;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.Agent;
@@ -10,8 +10,8 @@ namespace DigitalOmega.api.Services.Implement
 {
     public class AgentService : IAgentService
     {
-        D_OContext db;
-        public AgentService(D_OContext _db)
+        do_insightContext db;
+        public AgentService(do_insightContext _db)
         {
             db = _db;
         }
@@ -24,20 +24,29 @@ namespace DigitalOmega.api.Services.Implement
                 if (request.Id == null)
                 {
                     // createnew
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
                             try
                             {
-                                await db.Agents.AddAsync(new Models.Agent
+                                await db.Agents.AddAsync(new Agent
                                 {
 
-                                    Id = SystemGlobal.GetId(),
+                                    GId = SystemGlobal.GetId(),
                                     AgentName = request.AgentName,
                                     UserId = request.UserId,
                                     Affiliate = request.Affiliate,
-                                   
+                                    AgentId = request.AgentId,
+                                    RealName = request.RealName,
+                                    Live=0,
+                                    LiveDate=DateTime.Now,
+                                    DialerId=request.DialerId,
+                                    Active=1,
+                                    CreatedAt=DateTime.Now,
+                                    CreatedBy=userId.ToString(),
+                                   DeactivatedAt=DateTime.Now,
+                                   DeactivatedBy=userId.ToString(), 
                                 });
                                 await db.SaveChangesAsync();
                                 trans.Commit();
@@ -54,7 +63,7 @@ namespace DigitalOmega.api.Services.Implement
                 }
                 else
                 {
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -67,6 +76,15 @@ namespace DigitalOmega.api.Services.Implement
                                 agent.UserId = request.UserId;
                                 agent.AgentName = request.AgentName;
                                 agent.Affiliate = request.Affiliate;
+                                agent.AgentId = request.AgentId;
+                                agent.RealName = request.RealName;
+                                //agent.Live = request.Live;
+                                agent.LiveDate = DateTime.Now;
+                                agent.DialerId = request.DialerId;
+                                agent.Active = request.Active;
+                                agent.DeactivatedAt = DateTime.Now;
+                                agent.DeactivatedBy = userId.ToString();
+                                agent.GId = request.GId;
                                
                                 db.Entry(agent).State = EntityState.Modified;
                                 await db.SaveChangesAsync();
@@ -106,26 +124,31 @@ namespace DigitalOmega.api.Services.Implement
             return null;
         }
 
-        public async Task<Agent> GetAgentByID(Guid? postId)
+        public async Task<Agent> GetAgentByID(Guid? agentId)
         {
             if (db != null)
             {
-                return await(from a in db.Agents
-                             from u in db.Users
-                             where a.Id == postId
-                             select new Agent
+                return await db.Agents.Where(x=>x.GId == agentId).Select(x => new Agent
                              {
-                                 Id = a.Id,
-                                 AgentName = a.AgentName,
-                                 UserId = a.UserId,
-                                 Affiliate = a.Affiliate
+                                 Id = x.Id,
+                                 AgentName = x.AgentName,
+                                 UserId = x.UserId,
+                                 Affiliate = x.Affiliate,
+                                 AgentId=x.AgentId,
+                                 RealName = x.RealName,
+                                 Live=x.Live,
+                                 LiveDate=x.LiveDate,
+                                 DialerId=x.DialerId,
+                                 Active=x.Active,
+                                 GId = x.GId,
+                                 
                              }).FirstOrDefaultAsync();
             }
 
             return null;
         }
 
-        public async  Task UpdatePost(Agent post)
+        public async  Task UpdatePost(DTOs.Agent post)
         {
             if (db != null)
             {
@@ -143,15 +166,20 @@ namespace DigitalOmega.api.Services.Implement
             {
                 GetAgentsResponse response = new GetAgentsResponse();
 
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
                     var query = db.Agents
                         .Select(x => new CreateAgentsRequest
                         {
                             Id = x.Id,
+                            AgentId = x.AgentId,
                             UserId = x.UserId,
                             AgentName = x.AgentName,
                             Affiliate = x.Affiliate,
+                            GId = x.GId,
+                            Live = x.Live,
+                            DialerId = x.DialerId,
+                            
                            
                         })
                       .AsQueryable();
@@ -174,6 +202,9 @@ namespace DigitalOmega.api.Services.Implement
                             break;
                         case 1:
                             orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Affiliate) : query.OrderBy(x => x.Affiliate);
+                            break;
+                        case 2:
+                            orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.AgentId) : query.OrderBy(x => x.AgentId);
                             break;
 
                     }
