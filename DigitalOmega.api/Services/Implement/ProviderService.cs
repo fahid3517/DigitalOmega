@@ -1,13 +1,20 @@
 ﻿using DigitalOmega.api.Common;
-using DigitalOmega.api.Models;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
+using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.Provider;
 using DigitalOmega.api.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalOmega.api.Services.Implement
 {
     public class ProviderService : IProviderService
     {
+        do_insightContext db;
+        public ProviderService(do_insightContext _db)
+        {
+            db = _db;
+        }
         public async Task<bool> AddProvider(CreateProvidersRequest request, Guid userId)
         {
             try
@@ -17,7 +24,7 @@ namespace DigitalOmega.api.Services.Implement
                 if (request.Id == null)
                 {
                     // createnew
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -26,8 +33,11 @@ namespace DigitalOmega.api.Services.Implement
                                 await db.Providers.AddAsync(new Provider
                                 {
 
-                                    Id = SystemGlobal.GetId(),
-                                    ProviderName = request.ProviderName
+                                    GId = SystemGlobal.GetId(),
+                                    Name = request.Name,
+                                    Active = request.Active,
+                                    CreatedAt = DateTime.Now,
+                                    CreatedBy = userId.ToString(),
                                 });
                                 await db.SaveChangesAsync();
                                 trans.Commit();
@@ -44,7 +54,7 @@ namespace DigitalOmega.api.Services.Implement
                 }
                 else
                 {
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -54,7 +64,10 @@ namespace DigitalOmega.api.Services.Implement
 
                                 if (provider == null) throw new Exception("Provider Not Found");
 
-                                provider.ProviderName = request.ProviderName;
+                                provider.Name = request.Name;
+                                provider.Active = request.Active;
+                                provider.DeactivatedAt = DateTime.Now;
+                                provider.DeactivatedBy=userId.ToString();
                                 await db.SaveChangesAsync();
 
                                 trans.Commit();
@@ -77,18 +90,25 @@ namespace DigitalOmega.api.Services.Implement
             }
         }
 
-        public GetProvidersResponse GetProvider()
+        public GetProvidersResponse GetProvider(ListGeneralModel page)
         {
             try
             {
                 GetProvidersResponse response = new GetProvidersResponse();
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
                     var query = db.Providers.Select(s => new CreateProvidersRequest
                     {
 
                         Id = s.Id,
-                        ProviderName = s.ProviderName
+                        Name = s.Name,
+                        Active = s.Active,
+                        GId= s.GId,
+                        CreatedAt = s.CreatedAt,
+                        CreatedBy = s.CreatedBy,
+                        DeactivatedAt= s.DeactivatedAt,
+                        DeactivatedBy= s.DeactivatedBy,
+
 
                     }).AsQueryable();
 
@@ -103,9 +123,24 @@ namespace DigitalOmega.api.Services.Implement
             }
         }
 
-        public Task<Agent> GetProviderByID(Guid? postId)
+        public async Task<Provider> GetProviderByID(Guid? providerGId)
         {
-            throw new NotImplementedException();
+            if (db != null)
+            {
+                return await db.Providers.Where(x => x.GId == providerGId).Select(s => new Provider
+                {
+                    Id = s.Id,
+                    GId = s.GId,
+                    Name = s.Name,
+                    CreatedAt = s.CreatedAt,
+                    CreatedBy = s.CreatedBy,
+                    Active= s.Active,
+                    DeactivatedAt=s.DeactivatedAt,
+                    DeactivatedBy=s.DeactivatedBy,
+                }).FirstOrDefaultAsync();
+            }
+
+            return null;
         }
 
         public Task<List<Provider>> GetProviders()

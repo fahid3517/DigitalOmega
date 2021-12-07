@@ -1,14 +1,20 @@
 ﻿using DigitalOmega.api.Common;
-using DigitalOmega.api.Models;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.Dispositon;
 using DigitalOmega.api.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalOmega.api.Services.Implement
 {
     public class DispositonService : IDispositonService
     {
+        do_insightContext db;
+        public DispositonService(do_insightContext _db)
+        {
+            db = _db;
+        }
         public async Task<bool> AddDispositon(CreateDispositonRequest request, Guid userId)
         {
             try
@@ -18,18 +24,22 @@ namespace DigitalOmega.api.Services.Implement
                 if (request.Id == null)
                 {
                     // createnew
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
                             try
                             {
-                                await db.Dispositons.AddAsync(new Dispositon
+                                await db.Dispositions.AddAsync(new Disposition
                                 {
 
-                                    Id = SystemGlobal.GetId(),
-                                    DispoStatus = request.DispoStatus,
-                                    StatusName = request.StatusName
+                                    GId = SystemGlobal.GetId(),
+                                   Status = request.Status,
+                                    StatusName = request.StatusName,
+                                    Active=request.Active,
+                                    CreatedAt=DateTime.Now,
+                                    CreatedBy=userId.ToString(),
+                                    
                                 });
                                 await db.SaveChangesAsync();
                                 trans.Commit();
@@ -46,18 +56,20 @@ namespace DigitalOmega.api.Services.Implement
                 }
                 else
                 {
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
                             try
                             {
-                                var dispositons = db.Dispositons.Find(request.Id);
+                                var dispositons = db.Dispositions.Find(request.Id);
 
                                 if (dispositons == null) throw new Exception("Package Not Found");
 
-                                dispositons.DispoStatus = request.DispoStatus;
+                                dispositons.Status = request.Status;
                                 dispositons.StatusName = request.StatusName;
+                                dispositons.Active = request.Active;
+                                
                                 await db.SaveChangesAsync();
 
                                 trans.Commit();
@@ -85,13 +97,17 @@ namespace DigitalOmega.api.Services.Implement
             try
             {
                 GetDispositonResponse response = new GetDispositonResponse();
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
-                    var query = db.Dispositons.Select(s => new CreateDispositonRequest
+                    var query = db.Dispositions.Select(s => new CreateDispositonRequest
                     {
                         Id = s.Id,
-                        DispoStatus = s.DispoStatus,
+                        Status = s.Status,
                         StatusName = s.StatusName,
+                        Active = s.Active,
+                        CreatedBy=s.CreatedBy,
+                        CreatedAt=s.CreatedAt,
+                        GId=s.GId,
                     }).AsQueryable();
 
                     if (!string.IsNullOrEmpty(page.Search))
@@ -102,14 +118,14 @@ namespace DigitalOmega.api.Services.Implement
                         var isNumber = Int32.TryParse(page.Search, out totalCases);
 
                         query = query.Where(
-                        x => x.DispoStatus.ToLower().Contains(page.Search.ToLower())
+                        x => x.Status.ToLower().Contains(page.Search.ToLower())
                     );
                     }
-                    var orderedQuery = query.OrderByDescending(x => x.DispoStatus);
+                    var orderedQuery = query.OrderByDescending(x => x.Status);
                     switch (page.SortIndex)
                     {
                         case 0:
-                            orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.DispoStatus) : query.OrderBy(x => x.DispoStatus);
+                            orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Status) : query.OrderBy(x => x.Status);
                             break;
                         case 1:
                             orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.StatusName) : query.OrderBy(x => x.StatusName);
@@ -130,12 +146,26 @@ namespace DigitalOmega.api.Services.Implement
             }
         }
 
-        public Task<Dispositon> GetDispositonByID(Guid? DispositonId)
+        public async Task<Disposition> GetDispositonByID(Guid? DispositonGId)
         {
-            throw new NotImplementedException();
+            if (db != null)
+            {
+                return await db.Dispositions.Where(x => x.GId == DispositonGId).Select(s => new Disposition
+                {
+                    Id = s.Id,
+                    GId = s.GId,
+                    Status=s.Status,
+                    StatusName=s.StatusName,
+                    CreatedAt = s.CreatedAt,
+                    CreatedBy = s.CreatedBy,
+                    Active = s.Active,
+                }).FirstOrDefaultAsync();
+            }
+
+            return null;
         }
 
-        public Task<List<Dispositon>> GetDispositons()
+        public Task<List<Disposition>> GetDispositons()
         {
             throw new NotImplementedException();
         }

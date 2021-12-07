@@ -31,5 +31,11 @@ namespace DigitalOmega.api.DTOs
         public string? CustomerImei { get; set; }
         public int? NoOfDevices { get; set; }
         public string? DevicePackageName { get; set; }
+
+        public Guid? PackageDetailId { get; set; }
+
+        public Guid? OrderGId { get; set; }
+
+
     }
 }

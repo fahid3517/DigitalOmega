@@ -1,14 +1,20 @@
 ﻿using DigitalOmega.api.Common;
-using DigitalOmega.api.Models;
+using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.IP;
 using DigitalOmega.api.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalOmega.api.Services.Implement
 {
     public class IPService : IIPService
     {
+        do_insightContext db;
+        public IPService(do_insightContext _db)
+        {
+            db = _db;
+        }
         public async Task<bool> AddIP(CreateIPsRequest request, Guid userId)
         {
 
@@ -19,7 +25,7 @@ namespace DigitalOmega.api.Services.Implement
                 if (request.Id == null)
                 {
                     // createnew
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -28,8 +34,11 @@ namespace DigitalOmega.api.Services.Implement
                                 await db.Ips.AddAsync(new Ip
                                 {
 
-                                    Id = SystemGlobal.GetId(),
-                                    Ip1= request.IP
+                                    GId = SystemGlobal.GetId(),
+                                    Ip1= request.IP,
+                                    CreatedAt= DateTime.Now,
+                                    CreatedBy=userId.ToString(),
+                                    
                                 });
                                 await db.SaveChangesAsync();
                                 trans.Commit();
@@ -46,7 +55,7 @@ namespace DigitalOmega.api.Services.Implement
                 }
                 else
                 {
-                    using (var db = new D_OContext())
+                    using (var db = new do_insightContext())
                     {
                         using (var trans = db.Database.BeginTransaction())
                         {
@@ -57,6 +66,7 @@ namespace DigitalOmega.api.Services.Implement
                                 if (ips == null) throw new Exception("IP Not Found");
 
                                 ips.Ip1 = request.IP;
+                                ips.GId = request.GId;
                                 await db.SaveChangesAsync();
 
                                 trans.Commit();
@@ -84,12 +94,16 @@ namespace DigitalOmega.api.Services.Implement
             try
             {
                 GetIPResponse response = new GetIPResponse();
-                using (var db = new D_OContext())
+                using (var db = new do_insightContext())
                 {
                     var query = db.Ips.Select(s => new CreateIPsRequest
                     {
                         Id = s.Id,
-                        IP = s.Ip1
+                        IP = s.Ip1,
+                        GId= s.GId,
+                        CreatedBy= s.CreatedBy,
+                        CreatedAt= s.CreatedAt,
+                        
                     }).AsQueryable();
 
                     if (!string.IsNullOrEmpty(page.Search))
@@ -125,9 +139,22 @@ namespace DigitalOmega.api.Services.Implement
             }
         }
 
-        public Task<Ip> GetIPByID(Guid? ipId)
+        public async Task<Ip> GetIPByID(Guid? ipGId)
         {
-            throw new NotImplementedException();
+            if (db != null)
+            {
+                return await db.Ips.Where(x => x.GId == ipGId).Select(s => new Ip
+                {
+                    Id = s.Id,
+                    GId = s.GId,
+                    Ip1 = s.Ip1,
+                    CreatedAt = s.CreatedAt,
+                    CreatedBy = s.CreatedBy,
+                   
+                }).FirstOrDefaultAsync();
+            }
+
+            return null;
         }
 
         public Task<List<Ip>> GetIPs()

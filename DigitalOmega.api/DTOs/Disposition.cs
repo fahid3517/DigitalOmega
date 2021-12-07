@@ -11,5 +11,7 @@ namespace DigitalOmega.api.DTOs
         public short Active { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
+
+        public Guid? GId { get; set; }
     }
 }

@@ -113,10 +113,10 @@ namespace DigitalOmega.api.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, ModelState.Values.SelectMany(v => v.Errors.Select(z => z.ErrorMessage)));
                 }
-                var agentGId = Guid.NewGuid();
-               // var userId = Guid.Parse(RouteData.Values["userId"].ToString());
+                var userId = Guid.Parse("d1a258a4-8a4f-4883-8213-f35ee31e8717");
+                // var userId = Guid.Parse(RouteData.Values["userId"].ToString());
 
-                return StatusCode(StatusCodes.Status200OK, new Response<bool>() { IsError = false, Message = "", Data = await agentService.AddAgent(request, agentGId) });
+                return StatusCode(StatusCodes.Status200OK, new Response<bool>() { IsError = false, Message = "", Data = await agentService.AddAgent(request, userId) });
             }
             catch (Exception ex)
             {

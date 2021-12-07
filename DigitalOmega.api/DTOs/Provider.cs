@@ -12,5 +12,8 @@ namespace DigitalOmega.api.DTOs
         public short? Active { get; set; }
         public DateTime? DeactivatedAt { get; set; }
         public string? DeactivatedBy { get; set; }
+
+        public Guid? GId { get; set; }
+
     }
 }

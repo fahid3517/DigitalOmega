@@ -130,6 +130,10 @@ namespace DigitalOmega.api
             services.AddSingleton<IDispositonService, DispositonService>();
             services.AddTransient<IDispositonService, DispositonService>();
 
+            services.AddScoped<IOrderService, OrderSerivce>();
+            services.AddSingleton<IOrderService, OrderSerivce>();
+            services.AddTransient<IOrderService, OrderSerivce>();
+
 
         }
          

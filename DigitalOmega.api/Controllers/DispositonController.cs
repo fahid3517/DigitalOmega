@@ -55,8 +55,8 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(500)]
-        [Route("GetPackageByID")]
-        public async Task<IActionResult> GetNispositonByID(Guid? dispositonId)
+        [Route("GetDispositionByID")]
+        public async Task<IActionResult> GetDispositionByID(Guid? dispositonId)
         {
             if (dispositonId == null)
             {
@@ -89,7 +89,7 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(typeof(Response<bool>), 200)]
         [ProducesResponseType(typeof(Response<bool>), 403)]
         [ProducesResponseType(typeof(string[]), 400)]
-        [AdminAuthorize(ERight.SuperAdmin)]
+       // [AdminAuthorize(ERight.SuperAdmin)]
         [Route("SaveDispositon")]
         public async Task<IActionResult> SaveDispositon(CreateDispositonRequest request)
         {
@@ -102,7 +102,8 @@ namespace DigitalOmega.api.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, ModelState.Values.SelectMany(v => v.Errors.Select(z => z.ErrorMessage)));
                 }
-                var userId = Guid.Parse(RouteData.Values["userId"].ToString());
+                var userId = Guid.Parse("d1a258a4-8a4f-4883-8213-f35ee31e8717");
+                //var userId = Guid.Parse(RouteData.Values["userId"].ToString());
 
                 return StatusCode(StatusCodes.Status200OK, new Response<bool>() { IsError = false, Message = "", Data = await dispositonService.AddDispositon(request, userId) });
             }

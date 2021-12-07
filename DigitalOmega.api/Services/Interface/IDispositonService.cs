@@ -1,4 +1,4 @@
-﻿using DigitalOmega.api.Models;
+﻿using DigitalOmega.api.DTOs;
 using DigitalOmega.api.Request;
 using DigitalOmega.api.Response;
 using DigitalOmega.api.Response.Dispositon;
@@ -7,11 +7,11 @@ namespace DigitalOmega.api.Services.Interface
 {
     public interface IDispositonService
     {
-        Task<List<Dispositon>> GetDispositons();
+        Task<List<Disposition>> GetDispositons();
         GetDispositonResponse GetDispositon(ListGeneralModel page);
 
 
-        Task<Dispositon> GetDispositonByID(Guid? DispositonId);
+        Task<Disposition> GetDispositonByID(Guid? DispositonGId);
         Task<bool> AddDispositon(CreateDispositonRequest request, Guid userId);
     }
 }

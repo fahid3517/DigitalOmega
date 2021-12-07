@@ -148,7 +148,7 @@ namespace DigitalOmega.api.Services.Implement
             return null;
         }
 
-        public async  Task UpdatePost(DTOs.Agent post)
+        public async  Task UpdatePost(Agent post)
         {
             if (db != null)
             {

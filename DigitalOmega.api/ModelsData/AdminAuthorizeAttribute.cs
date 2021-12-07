@@ -55,6 +55,7 @@ namespace DigitalOmega.api.ModelsData
                     tokenData = JsonConvert.DeserializeObject<AdminAuthToken>(temp.Claims.FirstOrDefault(x => x.Type.Equals("token"))?.Value);
                     context.RouteData.Values.Add("userId", tokenData.UserId);
                    // context.RouteData.Values.Add("roleIdd", tokenData.RoleId);
+                  
                 }
                 catch (Exception ex)
                 {

@@ -12,7 +12,7 @@ namespace DigitalOmega.api.Services.Interface
         GetPackgesResponse GetPackage(ListGeneralModel page);
 
 
-        Task<Agent> GetPackageByID(Guid? postId);
+        Task<Package> GetPackageByID(Guid? packageGId);
         Task<bool> AddPackage(CreatePackagesRequest request, Guid userId);
     }
 }

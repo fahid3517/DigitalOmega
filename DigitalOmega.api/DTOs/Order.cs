@@ -30,5 +30,8 @@ namespace DigitalOmega.api.DTOs
         public string? Comments { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
+
+        public Guid? OrderId { get; set; }
+        public  Guid? CustId { get; set; }
     }
 }
