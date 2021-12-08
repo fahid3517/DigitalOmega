@@ -16,5 +16,7 @@ namespace DigitalOmega.api.DTOs
         public string? UpdatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public short? Active { get; set; }
+
+        public Guid? AffiliatesId { get; set; }
     }
 }

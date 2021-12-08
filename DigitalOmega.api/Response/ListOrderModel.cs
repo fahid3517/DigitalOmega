@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 namespace DigitalOmega.api.Response
 {
-    public class ListGeneralModel
+    public class ListOrderModel
     {
         [JsonProperty(PropertyName = "page")]
         public int Page { get; set; }
@@ -24,5 +22,10 @@ namespace DigitalOmega.api.Response
         [JsonProperty(PropertyName = "sortBy")]
         public string? SortBy { get; set; }
 
+        [JsonProperty(PropertyName = "fromDate")]
+        public DateTime? FromDate { get; set; }
+
+        [JsonProperty(PropertyName = "toDate")]
+        public DateTime? ToDate { get; set; }
     }
 }

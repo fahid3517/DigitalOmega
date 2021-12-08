@@ -9,10 +9,14 @@ namespace DigitalOmega.api.Services.Interface
     {
 
         Task<List<Order>> GetOrders();
-        GetOrderResponse GetOrder(ListGeneralModel page);
+        GetOrderResponse GetOrder(ListOrderModel page);
 
 
-        Task<Agent> GetOrderByID(Guid? orderId);
+        Task<Order> GetOrderByID(Guid? orderId);
+
+        Task<Order> GetOrderByAffiliate(string? affiliate);
+
+        Task<Order> GetOrderByAgentId(string? AgentId);
 
         // Task<bool> AddAgent(Agent agent);
         Task<bool> AddOrder(CreateCustomerRequest request, Guid userId);

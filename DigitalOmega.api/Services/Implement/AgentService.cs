@@ -109,7 +109,7 @@ namespace DigitalOmega.api.Services.Implement
             }
         }
 
-        public Task<int> DeletePost(int? postId)
+        public Task<int> DeletePost(int? agentId)
         {
             throw new NotImplementedException();
         }
@@ -222,6 +222,30 @@ namespace DigitalOmega.api.Services.Implement
             {
                 throw ex;
             }
+        }
+
+        public async Task<Agent> GetAgentByAffiliate(string? affiliate)
+        {
+            if (db != null)
+            {
+                return await db.Agents.Where(x => x.Affiliate == affiliate).Select(x => new Agent
+                {
+                    Id = x.Id,
+                    AgentName = x.AgentName,
+                    UserId = x.UserId,
+                    Affiliate = x.Affiliate,
+                    AgentId = x.AgentId,
+                    RealName = x.RealName,
+                    Live = x.Live,
+                    LiveDate = x.LiveDate,
+                    DialerId = x.DialerId,
+                    Active = x.Active,
+                    GId = x.GId,
+
+                }).FirstOrDefaultAsync();
+            }
+
+            return null;
         }
     }
 }

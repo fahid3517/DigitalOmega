@@ -12,9 +12,11 @@ namespace DigitalOmega.api.Services.Interface
         GetAgentsResponse GetAgent(ListGeneralModel page);
 
 
-        Task<Agent> GetAgentByID(Guid? postId);
+        Task<Agent> GetAgentByID(Guid? AgentId);
 
-       // Task<bool> AddAgent(Agent agent);
+        Task<Agent> GetAgentByAffiliate(string? affiliate);
+
+        // Task<bool> AddAgent(Agent agent);
         Task<bool> AddAgent(CreateAgentsRequest request, Guid userId);
 
         Task<int> DeletePost(int? postId);

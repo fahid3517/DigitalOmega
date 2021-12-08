@@ -112,11 +112,9 @@ namespace DigitalOmega.api
             services.AddScoped<IUserService, UsersService>();
             services.AddSingleton<IUserService, UsersService>();
             services.AddTransient<IUserService, UsersService>();
-
             services.AddScoped<IAgentService, AgentService>();
             services.AddSingleton<IAgentService, AgentService>();
             services.AddTransient<IAgentService, AgentService>();
-
             services.AddScoped<IProviderService, ProviderService>();
             services.AddSingleton<IProviderService, ProviderService>();
             services.AddTransient<IProviderService, ProviderService>();
@@ -129,10 +127,13 @@ namespace DigitalOmega.api
             services.AddScoped<IDispositonService, DispositonService>();
             services.AddSingleton<IDispositonService, DispositonService>();
             services.AddTransient<IDispositonService, DispositonService>();
-
             services.AddScoped<IOrderService, OrderSerivce>();
             services.AddSingleton<IOrderService, OrderSerivce>();
             services.AddTransient<IOrderService, OrderSerivce>();
+            services.AddScoped<IAffiliateService, AffiliateService>();
+            services.AddSingleton<IAffiliateService, AffiliateService>();
+            services.AddTransient<IAffiliateService, AffiliateService>();
+
 
 
         }

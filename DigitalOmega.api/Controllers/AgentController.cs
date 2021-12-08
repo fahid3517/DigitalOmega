@@ -90,6 +90,35 @@ namespace DigitalOmega.api.Controllers
                 return BadRequest();
             }
         }
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(500)]
+        [Route("GetAgentByAffiliate")]
+        public async Task<IActionResult> GetAgentByAffiliate(string affiliate)
+        {
+            if (affiliate == null)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var agent = await agentService.GetAgentByAffiliate(affiliate);
+
+                if (agent == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(agent);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
 
         [HttpPost]
         [HttpPost]
