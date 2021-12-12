@@ -76,10 +76,10 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(typeof(Response<GetUsersResponse>), 200)]
         [ProducesResponseType(typeof(Response<GetUsersResponse>), 403)]
         [ProducesResponseType(typeof(string[]), 400)]
-       // [AdminAuthorize(ERight.UserManagement)]
+        // [AdminAuthorize(ERight.UserManagement)]
         [HttpPost]
         [Route("getusers")]
-        public IActionResult GetUsers()
+        public IActionResult GetUsers(ListGeneralModel page)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace DigitalOmega.api.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, ModelState.Values.SelectMany(v => v.Errors.Select(z => z.ErrorMessage)));
                 }
 
-                return StatusCode(StatusCodes.Status403Forbidden, new Response<GetUsersResponse>() { IsError = false, Message = "", Data = usersService.GetUsers() });
+                return StatusCode(StatusCodes.Status200OK, new Response<GetUsersResponse>() { IsError = false, Message = "", Data = usersService.GetUsers(page) });
             }
             catch (Exception ex)
             {
@@ -104,15 +104,15 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(typeof(Response<bool>), 200)]
         [ProducesResponseType(typeof(Response<bool>), 403)]
         [ProducesResponseType(typeof(string[]), 400)]
-       // [AdminAuthorize(ERight.UserManagement)]
+        // [AdminAuthorize(ERight.UserManagement)]
         [Route("saveuser")]
         public async Task<IActionResult> SaveUser([FromForm] CreateUserRequest createUser)
         {
             try
             {
-               // FileUrlResponce file = new FileUrlResponce();
+                // FileUrlResponce file = new FileUrlResponce();
 
-               // createUser.ProfileImage = JsonConvert.DeserializeObject<FileUrlResponce>(Request.Form["profileImage"]);
+                // createUser.ProfileImage = JsonConvert.DeserializeObject<FileUrlResponce>(Request.Form["profileImage"]);
 
                 if (!ModelState.IsValid)
                 {
@@ -120,7 +120,7 @@ namespace DigitalOmega.api.Controllers
                 }
                 var userId = Guid.NewGuid();
 
-               // var userId = Guid.Parse(RouteData.Values["userId"].ToString());
+                // var userId = Guid.Parse(RouteData.Values["userId"].ToString());
 
                 //if (profileImage != null && profileImage.Length > 0)
                 //{
@@ -142,7 +142,7 @@ namespace DigitalOmega.api.Controllers
         [ProducesResponseType(500)]
         [ProducesResponseType(typeof(Response<CreateUserRequest>), 200)]
         [ProducesResponseType(typeof(Response<CreateUserRequest>), 403)]
-       // [AdminAuthorize(ERight.UserManagement)]
+        // [AdminAuthorize(ERight.UserManagement)]
         [HttpGet]
         [Route("getedituser/{id}")]
         public IActionResult GetEditUser(Guid id)
@@ -161,7 +161,7 @@ namespace DigitalOmega.api.Controllers
         {
             using (var context = new D_OContext())
             {
-                return  context.Users.ToList();
+                return context.Users.ToList();
             }
         }
     }

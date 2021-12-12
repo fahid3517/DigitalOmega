@@ -35,7 +35,7 @@ namespace DigitalOmega.api.Services.Implement
                         .FirstOrDefault(x => x.UserId.ToLower().Equals(request.UserInfo.ToLower()) && x.Password.Equals(encryptedPassword));
 
                     if (user == null) return Tuple.Create(response, isLogin, isBlock);
-                   // isBlock = user.IsBlocked;
+                    // isBlock = user.IsBlocked;
                     if (isBlock) return Tuple.Create(response, isLogin, isBlock);
 
                     var authToken = new Encryption().GetToken(new AdminAuthToken { UserId = user.GId }, user.GId, tokenKey);
@@ -66,19 +66,19 @@ namespace DigitalOmega.api.Services.Implement
                         {
                             Id = x.Id,
                             Name = x.Name,
-                          
+
                             UserId = x.UserId,
                             Password = "***********",
                             Role = x.Role,
-                            CreatedAt = DateTime.Now,  
-                            CreatedBy= x.CreatedBy,
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = x.CreatedBy,
                             DeactivatedAt = DateTime.Now,
-                            DeactivatedBy= x.DeactivatedBy,
-                             Active = x.Active,
+                            DeactivatedBy = x.DeactivatedBy,
+                            Active = x.Active,
                             // GenderId = x.GenderId,
                             // GenderName = x.Gender.Name,
-                           // RoleId = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).RoleId,
-                           // RoleName = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).Role.Name,
+                            // RoleId = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).RoleId,
+                            // RoleName = x.AdminUserRoles.FirstOrDefault(y => y.IsEnabled).Role.Name,
                             //ProfileImage = new FileUrlResponce
                             //{
                             //    URL = x.ImageUrl,
@@ -94,7 +94,7 @@ namespace DigitalOmega.api.Services.Implement
             }
         }
 
-        public GetUsersResponse GetUsers()
+        public GetUsersResponse GetUsers(ListGeneralModel page)
         {
             try
             {
@@ -128,35 +128,34 @@ namespace DigitalOmega.api.Services.Implement
                         })
                       .AsQueryable();
 
-                    //if (!string.IsNullOrEmpty(page.Search))
-                    //{
-                    //    var date = new DateTime();
-                    //    var sdate = DateTime.TryParse(page.Search, out date);
-                    //    int totalCases = -1;
-                    //    var isNumber = Int32.TryParse(page.Search, out totalCases);
+                    if (!string.IsNullOrEmpty(page.Search))
+                    {
+                        var date = new DateTime();
+                        var sdate = DateTime.TryParse(page.Search, out date);
+                        int totalCases = -1;
+                        var isNumber = Int32.TryParse(page.Search, out totalCases);
 
-                    //    query = query.Where(
-                    //    x => x.Name.ToLower().Contains(page.Search.ToLower())
-                    //);
-                   // }
+                        query = query.Where(
+                        x => x.Name.ToLower().Contains(page.Search.ToLower())
+                    );
+                    }
 
-                    //var orderedQuery = query.OrderByDescending(x => x.Name);
-                    //switch (page.SortIndex)
-                    //{
-                    //    case 0:
-                    //        orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
-                    //        break;
-                       
-                    //    case 1:
-                    //        orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Email) : query.OrderBy(x => x.Email);
-                    //        break;
-                      
-                    //}
+                    var orderedQuery = query.OrderByDescending(x => x.Name);
+                    switch (page.SortIndex)
+                    {
+                        case 0:
+                            orderedQuery = page.SortBy == "desc" ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                            break;
 
 
-                    //response.Page = page.Page;
-                    //response.PageSize = page.PageSize;
-                    //response.TotalRecords = orderedQuery.Count();
+
+                    }
+
+
+                    response.Page = page.Page;
+                    response.PageSize = page.PageSize;
+                    response.TotalRecords = orderedQuery.Count();
+                    response.Users = orderedQuery.ToList();
                     //response.Users = orderedQuery.Skip(page.Page).Take(page.PageSize).ToList();
                 }
 
@@ -174,7 +173,7 @@ namespace DigitalOmega.api.Services.Implement
             {
                 bool response = false;
 
-               // List<AdminUserRoles> userRoles = new List<AdminUserRoles>();
+                // List<AdminUserRoles> userRoles = new List<AdminUserRoles>();
 
                 //userRoles.Add(new AdminUserRoles
                 //{
@@ -205,17 +204,17 @@ namespace DigitalOmega.api.Services.Implement
                                     UserId = createUser.UserId,
                                     Password = encryptedPassword,
                                     Role = createUser.Role,
-                                    Active =    createUser.Active,
+                                    Active = createUser.Active,
                                     CreatedBy = createUser.CreatedBy,
-                                    CreatedAt =DateTime.Now,
+                                    CreatedAt = DateTime.Now,
                                     DeactivatedAt = DateTime.Now,
                                     DeactivatedBy = userId.ToString(),
-                                   
+
                                     //GenderId = createUser.GenderId,
-                                  
+
                                     //AdminUserRoles = userRoles,
-                                
-                                 
+
+
                                 });
 
                                 await db.SaveChangesAsync();
@@ -245,7 +244,7 @@ namespace DigitalOmega.api.Services.Implement
                                 if (user == null) throw new Exception("User Not Found");
 
                                 //delete Old One
-                              //  await db.AdminUserRoles.Where(x => x.IsEnabled && x.AdminUserId.Equals(user.Id)).ForEachAsync(x => { x.IsEnabled = false; x.DeletedBy = userId.ToString(); x.DeletedOn = DateTime.UtcNow; });
+                                //  await db.AdminUserRoles.Where(x => x.IsEnabled && x.AdminUserId.Equals(user.Id)).ForEachAsync(x => { x.IsEnabled = false; x.DeletedBy = userId.ToString(); x.DeletedOn = DateTime.UtcNow; });
                                 await db.SaveChangesAsync();
 
                                 user.Name = createUser.Name;

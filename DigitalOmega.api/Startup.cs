@@ -66,6 +66,38 @@ namespace DigitalOmega.api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApiDB", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+   {
+     new OpenApiSecurityScheme
+     {
+       Reference = new OpenApiReference
+       {
+         Type = ReferenceType.SecurityScheme,
+         Id = "Bearer"
+       }
+      },
+      new string[] { }
+    }
+  });
+            });
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200", "http://localhost:7046", "http://fitcentrapp.stagingdesk.com", "https://fitcentrapp.stagingdesk.com")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    });
             });
             services.ConfigureApplicationCookie(options =>
             {
@@ -220,6 +252,19 @@ namespace DigitalOmega.api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApiDB v1"));
             }
+            app.UseCors(MyAllowSpecificOrigins);
+
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                OnPrepareResponse = ctx =>
+                {
+                    ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                    ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers",
+                        "Origin, X-Requested-With, Content-Type, Accept");
+                },
+
+            });
+
 
             app.UseHttpsRedirection();
 
